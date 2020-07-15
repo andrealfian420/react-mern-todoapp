@@ -1,5 +1,5 @@
 import React from "react";
-import TodoComponent from "./Components/TodoComponent";
+import TodoComponent from "./components/TodoComponent";
 
 function App() {
   return (
