@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+
 import { validateString } from "../helper/helpers";
 
 import Logo from "../assets/nagato.png";
@@ -107,22 +110,16 @@ const RemoveDone = styled.button`
 // End of Styled Components
 
 const TodoComponent = () => {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      task: "Sleep with fishes",
-      done: false,
-    },
-    {
-      id: 2,
-      task: "Eat breakfast",
-      done: false,
-    },
-  ]);
+  const [todos, setTodos] = useState([]);
 
   useEffect(() => {
     console.log("todoComponent mounted !");
     document.title = "MERN Todoapp";
+
+    axios
+      .get("http://localhost:3350/api/todo")
+      .then(({ data }) => (data.data.length ? setTodos([...data.data]) : ""))
+      .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
@@ -141,14 +138,14 @@ const TodoComponent = () => {
 
   // Handle delete data
   const handleTodoDelete = (id) => {
-    const newTodos = todos.filter((todo) => todo.id !== id);
+    const newTodos = todos.filter((todo) => todo.todo_id !== id);
 
     setTodos([...newTodos]);
   };
 
   // Handle mark as done button
   const handleMarkAsDone = (id) => {
-    const todoIndex = todos.findIndex((todo) => todo.id === id);
+    const todoIndex = todos.findIndex((todo) => todo.todo_id === id);
     const updateTodo = [...todos];
 
     updateTodo[todoIndex].done === true
@@ -171,21 +168,29 @@ const TodoComponent = () => {
     const validTodo = validateString(todo.trim());
 
     if (validTodo === false) {
+      document.getElementById("task").value = "";
       return alert("Task tidak valid");
     }
 
     const newTodo = {
-      id: Math.random() * 1000,
+      todo_id: uuidv4(),
       task: validTodo,
       done: false,
     };
 
-    const testing = JSON.stringify(newTodo);
-    console.log(testing);
+    console.log(newTodo);
 
-    setTodos([...todos, newTodo]);
-    setTodo(null);
-    document.getElementById("task").value = "";
+    axios
+      .post("http://localhost:3350/api/todo", newTodo)
+      .then((res) => {
+        const oldTodos = todos;
+        oldTodos.push(res.data.data);
+
+        setTodos([...oldTodos]);
+        setTodo(null);
+        document.getElementById("task").value = "";
+      })
+      .catch((err) => console.log(err.message));
   };
 
   const preventOpenLink = (e) => {
@@ -197,7 +202,7 @@ const TodoComponent = () => {
     todos.map((todo) => {
       return (
         <ListItem
-          key={todo.id}
+          key={todo.todo_id}
           style={
             todo.done
               ? { textDecoration: "line-through" }
@@ -207,7 +212,7 @@ const TodoComponent = () => {
           {todo.task}
           <a href="/" onClick={preventOpenLink}>
             <span
-              onClick={() => handleMarkAsDone(todo.id)}
+              onClick={() => handleMarkAsDone(todo.todo_id)}
               style={{
                 float: "right",
                 marginLeft: "10px",
@@ -223,7 +228,7 @@ const TodoComponent = () => {
           </a>
           <a href="/" onClick={preventOpenLink}>
             <span
-              onClick={() => handleTodoDelete(todo.id)}
+              onClick={() => handleTodoDelete(todo.todo_id)}
               style={{
                 float: "right",
                 marginLeft: "10px",
@@ -244,6 +249,7 @@ const TodoComponent = () => {
     <p style={{ color: "#001f3f" }}>No task present</p>
   );
 
+  // Render Component
   return (
     <div>
       <HeaderLogo>Test</HeaderLogo>
