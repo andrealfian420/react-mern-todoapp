@@ -177,6 +177,11 @@ const TodoComponent = () => {
 
   // Handle removing all completed todo
   const handleRemoveDone = () => {
+    axios
+      .delete("http://localhost:3350/api/todo/completed")
+      .then(() => console.log("The completed todos is deleted !"))
+      .catch((err) => console.log(err));
+
     const undoneTodo = todos.filter((todo) => todo.done === false);
 
     setTodos([...undoneTodo]);
