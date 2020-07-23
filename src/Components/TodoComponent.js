@@ -148,7 +148,7 @@ const TodoComponent = () => {
           todo_id: id,
         },
       })
-      .then((res) => console.log("Todo deleted !"))
+      .then(() => console.log("Todo deleted !"))
       .catch((err) => console.log(err));
 
     const newTodos = todos.filter((todo) => todo.todo_id !== id);
@@ -156,7 +156,15 @@ const TodoComponent = () => {
   };
 
   // Handle mark as done button
-  const handleMarkAsDone = (id) => {
+  const handleMarkAsDone = (id, done) => {
+    axios
+      .patch("http://localhost:3350/api/todo", {
+        todo_id: id,
+        done,
+      })
+      .then(() => console.log("Todo status updated !"))
+      .catch((err) => console.log(err));
+
     const todoIndex = todos.findIndex((todo) => todo.todo_id === id);
     const updateTodo = [...todos];
 
@@ -189,8 +197,6 @@ const TodoComponent = () => {
       task: validTodo,
       done: false,
     };
-
-    console.log(newTodo);
 
     axios
       .post("http://localhost:3350/api/todo", newTodo)
@@ -225,7 +231,7 @@ const TodoComponent = () => {
           {todo.task}
           <a href="/" onClick={preventOpenLink}>
             <span
-              onClick={() => handleMarkAsDone(todo.todo_id)}
+              onClick={() => handleMarkAsDone(todo.todo_id, todo.done)}
               style={{
                 float: "right",
                 marginLeft: "10px",
