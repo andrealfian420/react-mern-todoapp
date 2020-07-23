@@ -142,8 +142,16 @@ const TodoComponent = () => {
 
   // Handle delete data
   const handleTodoDelete = (id) => {
-    const newTodos = todos.filter((todo) => todo.todo_id !== id);
+    axios
+      .delete("http://localhost:3350/api/todo", {
+        data: {
+          todo_id: id,
+        },
+      })
+      .then((res) => console.log("Todo deleted !"))
+      .catch((err) => console.log(err));
 
+    const newTodos = todos.filter((todo) => todo.todo_id !== id);
     setTodos([...newTodos]);
   };
 
