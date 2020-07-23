@@ -118,7 +118,11 @@ const TodoComponent = () => {
 
     axios
       .get("http://localhost:3350/api/todo")
-      .then(({ data }) => (data.data.length ? setTodos([...data.data]) : ""))
+      .then((res) => {
+        const { data } = res.data;
+
+        return data.length ? setTodos([...data]) : "";
+      })
       .catch((err) => console.log(err));
   }, []);
 
@@ -183,8 +187,9 @@ const TodoComponent = () => {
     axios
       .post("http://localhost:3350/api/todo", newTodo)
       .then((res) => {
+        const { data } = res.data;
         const oldTodos = todos;
-        oldTodos.push(res.data.data);
+        oldTodos.push(data);
 
         setTodos([...oldTodos]);
         setTodo(null);
